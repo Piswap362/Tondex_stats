@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TON DEX - Stats</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #006D77;
+            --primary-medium: #1A6E7A;
+            --primary-light: #83C5BE;
+            --accent-color: #FFDDD2;
+            --text-light: #FFFFFF;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --success-color: #4CAF50;
+            --warning-color: #FFC107;
+        }
+        
+        .back-button {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+        
+        .back-button:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--primary-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+        }
+        
+        .scroll-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 100px;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        
+        .stats-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .stats-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+        
+        .stats-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(131, 197, 190, 0.2);
+        }
+        
+        .stats-card-title {
+            font-weight: 600;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stats-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .stats-label {
+            opacity: 0.8;
+        }
+        
+        .stats-value {
+            font-weight: 600;
+        }
+        
+        .chart-container {
+            height: 200px;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .time-filters {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .time-filter {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-light);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .time-filter.active {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        
+        .token-stats {
+            margin-top: 30px;
+        }
+        
+        .token-stats-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+            font-size: 18px;
+        }
+        
+        .token-stat-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+        
+        .token-stat-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 16px;
+        }
+        
+        .token-stat-details {
+            flex: 1;
+        }
+        
+        .token-stat-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .token-stat-numbers {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .token-stat-price {
+            font-weight: 600;
+        }
+        
+        .token-stat-change {
+            color: var(--success-color);
+        }
+        
+        .token-stat-change.negative {
+            color: #FF5252;
+        }
+        
+        .bottom-menu {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 109, 119, 0.9);
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(131, 197, 190, 0.3);
+            z-index: 1000;
+            max-width: 400px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+        
+        .menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            gap: 5px;
+            text-decoration: none;
+            position: relative;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: var(--transition);
+            opacity: 0.7;
+            flex: 1;
+        }
+        
+        .menu-btn:hover {
+            opacity: 1;
+            background: rgba(131, 197, 190, 0.1);
+        }
+        
+        .menu-btn i {
+            font-size: 20px;
+        }
+        
+        .menu-btn.active {
+            opacity: 1;
+            font-weight: 600;
+        }
+        
+        .menu-btn.active::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 3px;
+            background-color: var(--accent-color);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="scroll-container">
+        <a href="https://piswap362.github.io/TonDex_Home/" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+
+        <div class="stats-header">
+            <h1 class="stats-title">DEX Statistics</h1>
+        </div>
+        
+        <div class="stats-card">
+            <div class="stats-card-title">Market Overview</div>
+            <div class="stats-item">
+                <span class="stats-label">Total Value Locked</span>
+                <span class="stats-value">$12.5M</span>
+            </div>
+            <div class="stats-item">
+                <span class="stats-label">24h Volume</span>
+                <span class="stats-value">$2.1M</span>
+            </div>
+            <div class="stats-item">
+                <span class="stats-label">24h Transactions</span>
+                <span class="stats-value">4,287</span>
+            </div>
+            <div class="stats-item">
+                <span class="stats-label">Total Pairs</span>
+                <span class="stats-value">42</span>
+            </div>
+        </div>
+        
+        <div class="stats-card">
+            <div class="stats-card-title">Volume (7 days)</div>
+            <div class="time-filters">
+                <button class="time-filter">24H</button>
+                <button class="time-filter active">7D</button>
+                <button class="time-filter">1M</button>
+                <button class="time-filter">1Y</button>
+                <button class="time-filter">ALL</button>
+            </div>
+            <div class="chart-container">
+                <!-- Chart would be inserted here -->
+                <div style="display: flex; justify-content: center; align-items: center; height: 100%; background: rgba(255,255,255,0.05); border-radius: 12px;">
+                    <span>Volume Chart</span>
+                </div>
+            </div>
+            <div class="stats-item">
+                <span class="stats-label">Total Volume</span>
+                <span class="stats-value">$14.8M</span>
+            </div>
+            <div class="stats-item">
+                <span class="stats-label">Volume Change (7d)</span>
+                <span class="stats-value" style="color: var(--success-color)">+12.5%</span>
+            </div>
+        </div>
+        
+        <div class="token-stats">
+            <div class="token-stats-title">Top Tokens</div>
+            
+            <div class="token-stat-item">
+                <div class="token-stat-icon">TON</div>
+                <div class="token-stat-details">
+                    <div class="token-stat-name">TON</div>
+                    <div class="token-stat-numbers">
+                        <span class="token-stat-price">$2.15</span>
+                        <span class="token-stat-change">+3.2%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="token-stat-item">
+                <div class="token-stat-icon">USDT</div>
+                <div class="token-stat-details">
+                    <div class="token-stat-name">Tether USD</div>
+                    <div class="token-stat-numbers">
+                        <span class="token-stat-price">$1.00</span>
+                        <span class="token-stat-change">+0.1%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="token-stat-item">
+                <div class="token-stat-icon">BTC</div>
+                <div class="token-stat-details">
+                    <div class="token-stat-name">Bitcoin</div>
+                    <div class="token-stat-numbers">
+                        <span class="token-stat-price">$42,380</span>
+                        <span class="token-stat-change negative">-1.5%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="token-stat-item">
+                <div class="token-stat-icon">ETH</div>
+                <div class="token-stat-details">
+                    <div class="token-stat-name">Ethereum</div>
+                    <div class="token-stat-numbers">
+                        <span class="token-stat-price">$2,250</span>
+                        <span class="token-stat-change">+2.3%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bottom-menu">
+            <a href="swap.html" class="menu-btn">
+                <i class="fas fa-exchange-alt"></i>
+                <span>Swap</span>
+            </a>
+            <a href="#" class="menu-btn active">
+                <i class="fas fa-chart-line"></i>
+                <span>Stats</span>
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Time filter buttons functionality
+            const timeFilters = document.querySelectorAll('.time-filter');
+            timeFilters.forEach(filter => {
+                filter.addEventListener('click', () => {
+                    timeFilters.forEach(f => f.classList.remove('active'));
+                    filter.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
